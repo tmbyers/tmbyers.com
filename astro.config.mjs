@@ -48,8 +48,7 @@ export default defineConfig({
    * and hosting flexibility. All pages are pre-rendered.
    */
   output: 'static',
-  site: 'https://tmbyers.github.io',
-  base: '/tmbyers.com',
+  site: 'https://tmbyers.com',
   
   /**
    * Astro integrations
