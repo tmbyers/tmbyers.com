@@ -73,7 +73,7 @@ export default defineConfig({
    * 
    * Set SITE_URL in your .env file (e.g., https://example.com)
    */
-  site: SITE_URL || 'https://example.com',
+  site: SITE_URL || 'https://tmbyers.com',
 
   /**
    * Vite configuration
@@ -105,22 +105,22 @@ export default defineConfig({
   env: {
     schema: {
       // Site configuration
-      SITE_URL: envField.string({ context: 'client', access: 'public', default: 'https://example.com' }),
+      SITE_URL: envField.string({ context: 'client', access: 'public', default: 'https://tmbyers.com' }),
       SITE_LANGUAGE: envField.string({ context: 'client', access: 'public', default: 'en' }),
       SITE_TITLE: envField.string({ context: 'client', access: 'public', default: 'Professional Portfolio' }),
-      SITE_DESCRIPTION: envField.string({ context: 'client', access: 'public', default: 'Engineering leader specializing in system architecture, technical decision-making, and delivering measurable business impact.' }),
+      SITE_DESCRIPTION: envField.string({ context: 'client', access: 'public', default: 'IT Support Specialist with a background in Computer Information Systems and hands-on experience in systems administration, networking, and cybersecurity.' }),
       
       // Author information
-      SITE_AUTHOR_NAME: envField.string({ context: 'client', access: 'public', default: 'Your Name' }),
-      SITE_AUTHOR_TITLE: envField.string({ context: 'client', access: 'public', default: 'Senior Software Engineer' }),
-      SITE_AUTHOR_BIO: envField.string({ context: 'client', access: 'public', default: 'Engineering leader focused on solving complex technical challenges through thoughtful architecture and pragmatic trade-off analysis.' }),
-      SITE_AUTHOR_EMAIL: envField.string({ context: 'client', access: 'public', default: 'hello@example.com' }),
-      SITE_AUTHOR_LOCATION: envField.string({ context: 'client', access: 'public', default: '' }),
+      SITE_AUTHOR_NAME: envField.string({ context: 'client', access: 'public', default: 'Taylor Byers' }),
+      SITE_AUTHOR_TITLE: envField.string({ context: 'client', access: 'public', default: 'IT Support Specialist' }),
+      SITE_AUTHOR_BIO: envField.string({ context: 'client', access: 'public', default: 'IT Support Specialist with a background in Computer Information Systems and hands-on experience in systems administration, networking, and cybersecurity.' }),
+      SITE_AUTHOR_EMAIL: envField.string({ context: 'client', access: 'public', default: 'taylor@tmbyers.com' }),
+      SITE_AUTHOR_LOCATION: envField.string({ context: 'client', access: 'public', default: 'Naples, FL' }),
       
       // Social media links (empty string = hidden)
-      SOCIAL_GITHUB: envField.string({ context: 'client', access: 'public', default: '' }),
-      SOCIAL_LINKEDIN: envField.string({ context: 'client', access: 'public', default: '' }),
-      SOCIAL_TWITTER: envField.string({ context: 'client', access: 'public', default: '' }),
+      SOCIAL_GITHUB: envField.string({ context: 'client', access: 'public', default: 'https://github.com/tmbyers' }),
+      SOCIAL_LINKEDIN: envField.string({ context: 'client', access: 'public', default: 'https://linkedin.com/in/tmbyers' }),
+      SOCIAL_TWITTER: envField.string({ context: 'client', access: 'public', default: 'https://twitter.com/itaylorbyers' }),
       SOCIAL_MASTODON: envField.string({ context: 'client', access: 'public', default: '' }),
       SOCIAL_BLUESKY: envField.string({ context: 'client', access: 'public', default: '' }),
     },

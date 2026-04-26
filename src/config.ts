@@ -70,7 +70,7 @@ export const siteConfig = {
    * 
    * Default meta description for SEO and social sharing.
    */
-  description: getEnv('SITE_DESCRIPTION', 'Engineering leader specializing in system architecture, technical decision-making, and delivering measurable business impact.'),
+  description: getEnv('SITE_DESCRIPTION', 'IT Support Specialist with a background in Computer Information Systems and hands-on experience in systems administration, networking, and cybersecurity.'),
   
   /**
    * Author information
