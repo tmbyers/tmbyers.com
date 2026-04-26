@@ -48,7 +48,7 @@ export const siteConfig = {
    * Should be the full production URL without trailing slash.
    * Example: 'https://example.com'
    */
-  url: getEnv('SITE_URL', 'https://example.com'),
+  url: getEnv('SITE_URL', 'https://tmbyers.com'),
   
   /**
    * Site language (ISO 639-1 code)
@@ -80,19 +80,19 @@ export const siteConfig = {
    */
   author: {
     /** Full name */
-    name: getEnv('SITE_AUTHOR_NAME', 'Your Name'),
+    name: getEnv('SITE_AUTHOR_NAME', 'Taylor Byers'),
     
     /** Professional title or role */
-    title: getEnv('SITE_AUTHOR_TITLE', 'Senior Software Engineer'),
+    title: getEnv('SITE_AUTHOR_TITLE', 'IT Support Specalist'),
     
     /** Short biography or professional summary */
-    bio: getEnv('SITE_AUTHOR_BIO', 'Engineering leader focused on solving complex technical challenges through thoughtful architecture and pragmatic trade-off analysis.'),
+    bio: getEnv('SITE_AUTHOR_BIO', 'IT Support Specialist with a background in Computer Information Systems and hands-on experience in systems administration, networking, and cybersecurity.'),
     
     /** Contact email address */
-    email: getEnv('SITE_AUTHOR_EMAIL', 'hello@example.com'),
+    email: getEnv('SITE_AUTHOR_EMAIL', 'taylor@tmbyers.com'),
     
     /** Location (optional, empty string to hide) */
-    location: getEnv('SITE_AUTHOR_LOCATION', ''),
+    location: getEnv('SITE_AUTHOR_LOCATION', 'Naples, FL'),
   },
   
   /**
@@ -103,13 +103,13 @@ export const siteConfig = {
    */
   social: {
     /** GitHub profile URL */
-    github: getEnv('SOCIAL_GITHUB', ''),
+    github: getEnv('SOCIAL_GITHUB', 'https://github.com/tmbyers'),
     
     /** LinkedIn profile URL */
-    linkedin: getEnv('SOCIAL_LINKEDIN', ''),
+    linkedin: getEnv('SOCIAL_LINKEDIN', 'https://linkedin.com/in/tmbyers'),
     
     /** Twitter/X profile URL */
-    twitter: getEnv('SOCIAL_TWITTER', ''),
+    twitter: getEnv('SOCIAL_TWITTER', 'https://twitter.com/itaylorbyers'),
     
     /** Mastodon profile URL */
     mastodon: getEnv('SOCIAL_MASTODON', ''),
