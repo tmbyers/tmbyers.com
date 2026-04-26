@@ -1,0 +1,290 @@
+---
+title: "Endpoint Investigation: Phishing-Delivered RMM Masquerading as Google Meet"
+role: "Endpoint Security & Incident Response"
+year: 2026
+duration: "April"
+teamSize: 1
+outcomeSummary: "Identified and remediated unauthorized remote access persistence deployed via a phishing-delivered MSI using obfuscated PowerShell"
+overview: "Performed a real-world endpoint investigation after a user reported a suspected virus, uncovering a phishing-based installation of a disguised remote access tool with scheduled task persistence and encoded PowerShell execution."
+problem: "An end user reported a potential virus infection. Initial antivirus scans detected only unrelated PUPs, leaving uncertainty about system compromise. The challenge was to determine whether a deeper threat existed despite clean automated scan results."
+constraints:
+  - "Initial antivirus scans showed no high-confidence threats"
+  - "No EDR tooling available for advanced telemetry"
+  - "Analysis had to be performed manually using built-in and lightweight tools"
+  - "Had to preserve system stability while investigating"
+approach: "Performed manual inspection of persistence mechanisms after automated scans failed to identify the root issue. Investigated Task Scheduler, decoded obfuscated PowerShell commands, analyzed installed applications, and correlated findings with browser history and download artifacts."
+keyDecisions:
+  - decision: "Manually inspect Task Scheduler after AV results were inconclusive"
+    reasoning: "Persistence mechanisms often evade traditional antivirus detection, especially when using legitimate tools like PowerShell."
+    alternatives:
+      - "Trust antivirus results and stop investigation"
+      - "Reimage system immediately without analysis"
+  - decision: "Decode Base64 PowerShell command instead of treating it as suspicious only"
+    reasoning: "Understanding the actual behavior of the encoded command provided proof of persistence and execution logic."
+    alternatives:
+      - "Flag as suspicious without decoding"
+      - "Remove task without further analysis"
+  - decision: "Correlate browser history with installed software"
+    reasoning: "Linking user activity to the installation source helped establish the initial infection vector."
+    alternatives:
+      - "Focus only on endpoint artifacts"
+      - "Ignore user browsing behavior"
+techStack:
+  - "Windows Task Scheduler"
+  - "PowerShell"
+  - "Malwarebytes"
+  - "Autoruns"
+  - "Windows Event Viewer"
+impact:
+  metrics:
+    - label: "Persistence Mechanism Identified"
+      value: "Scheduled Task running as SYSTEM"
+    - label: "Detection Gap"
+      value: "Primary threat missed by antivirus tools"
+    - label: "Unauthorized Access Vector"
+      value: "Phishing-delivered MSI installer"
+  qualitative: "Prevented continued unauthorized remote access by identifying and removing a disguised RMM tool. Demonstrated the importance of manual investigation beyond automated detection tools."
+learnings:
+  - "Antivirus tools alone are insufficient for detecting persistence-based threats"
+  - "Task Scheduler is a common persistence mechanism for unauthorized access"
+  - "Base64-encoded PowerShell is frequently used for obfuscation"
+  - "Correlating user behavior with system artifacts is critical in investigations"
+featured: true
+order: 1
+---
+import { Image } from 'astro:assets';
+
+import history1 from '@/assets/projects/google-meet-rmm/history1.png';
+import history2 from '@/assets/projects/google-meet-rmm/history2.png';
+import chromeDownload from '@/assets/projects/google-meet-rmm/chrome_download.png';
+import phishingNotice from '@/assets/projects/google-meet-rmm/phishing_notice_on_site.png';
+import siteIndex from '@/assets/projects/google-meet-rmm/site_index.png';
+import fakeMeetApp from '@/assets/projects/google-meet-rmm/fake_meet_app.png';
+import msiComment from '@/assets/projects/google-meet-rmm/comment_on_msi.png';
+import sigOfFile from '@/assets/projects/google-meet-rmm/sig_of_file.png';
+import appInQuestion from '@/assets/projects/google-meet-rmm/app_in_question.png';
+import googleFolder from '@/assets/projects/google-meet-rmm/google_folder.png';
+import base64App from '@/assets/projects/google-meet-rmm/base64_app.png';
+import taskScheduler from '@/assets/projects/google-meet-rmm/task_scheduler.png';
+import argumentsImg from '@/assets/projects/google-meet-rmm/arguments.png';
+
+## Technical Deep Dive
+
+### Initial Detection Gap
+
+The investigation began after a user reported a suspected virus. A scan using Malwarebytes identified only unrelated potentially unwanted programs (PUPs), which did not explain the user's concern. Autoruns also failed to reveal any obvious persistence mechanisms.
+
+This prompted a manual investigation of common persistence locations.
+
+---
+
+### Suspicious Download Source
+
+Initial browser history showed the user actively searching for Google Meet and attempting to download it from legitimate-looking sources:
+
+<Image src={history1} alt="User searching for Google Meet and attempting downloads" />
+
+Shortly after, the user navigated to a suspicious domain:
+
+
+```
+osay[.]digital
+```
+
+<Image src={history2} alt="Browser history showing access to osay.digital fake Google Meet site" />
+
+Download artifacts confirmed multiple MSI files retrieved from this domain:
+
+<Image src={chromeDownload} alt="Chrome downloads showing MSI files from osay.digital" />
+
+---
+
+### Phishing Indicator
+
+The domain later displayed a Cloudflare warning indicating suspected phishing activity:
+
+<Image 
+  src={phishingNotice} 
+  alt="Cloudflare phishing warning for osay.digital" 
+/>
+
+Additionally, the site exposed a directory listing:
+
+<Image 
+  src={siteIndex} 
+  alt="Open directory listing on malicious site" 
+/>
+
+---
+
+### Installed Application Analysis
+
+The system contained an installed application labeled:
+
+```
+Google Meet RMM (Version 2.0.0.0)
+```
+<Image 
+  src={fakeMeetApp} 
+  alt="Installed application masquerading as Google Meet"
+/>
+
+Inspection of the MSI metadata revealed:
+
+- Description: Installation Database  
+- Comment: *Installs Superops RMM Agent*  
+- Signed by: SuperOps Inc.
+
+<Image src={msiComment} alt="MSI metadata showing RMM agent comment" />
+
+The binary components were also digitally signed:
+
+<Image src={sigOfFile} alt="Digital signature showing SuperOps Inc as signer" />
+
+This indicates the installer leveraged legitimate signed software (RMM tooling) but was distributed through a deceptive delivery method.
+
+---
+
+### RMM Software Behavior
+
+The installed application exposed full remote access capabilities:
+
+- Remote Access
+- Desktop Sharing
+- File Sharing
+
+<Image 
+  src={appInQuestion} 
+  alt="ISL Online Agent interface showing remote access enabled"
+/>
+
+Files were installed under:
+
+```
+C:\Program Files\googlemeetrmm\
+```
+
+<Image src={googleFolder} alt="Installed application directory contents" />
+
+Binary files included:
+
+```
+updmgr.exe
+```
+
+<Image src={base64App} alt="Binary directory showing updater executable" />
+
+---
+
+### Persistence Mechanism
+
+A scheduled task was identified:
+
+```
+googlemeetrmm Upgrade Scheduler
+```
+
+Key characteristics:
+- Runs as SYSTEM
+- Repeats every 4 hours
+- Designed to restart/update service
+
+<Image 
+  src={taskScheduler} 
+  alt="Task Scheduler showing persistence task googlemeetrmm Upgrade Scheduler running as SYSTEM"
+/>
+
+---
+
+### Encoded PowerShell Execution
+
+The task executed:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand <base64>
+```
+
+<Image 
+  src={argumentsImg} 
+  alt="Task Scheduler action showing PowerShell encoded command execution"
+/>
+
+---
+
+### Decoded Payload Analysis
+
+The Base64 string decoded to a script that:
+
+1. Defined arguments for an updater service
+2. Executed a binary from the install directory
+3. Captured output and errors
+4. Logged execution results
+
+Decoded behavior included:
+
+```powershell
+$exePath = "C:\Program Files\googlemeetrmm\bin\updmgr.exe"
+$arguments = "--checkUpgradeService \"yes\" --upgradeServiceName \"googlemeet Updater\""
+```
+
+Log output written to:
+
+```powershell
+C:\Program Files\googlemeetrmm\logs\upgradeScheduler.log
+```
+
+This confirmed the scheduled task was maintaining and updating the remote access agent.
+
+---
+
+### Execution Flow
+
+1. User searched for Google Meet
+2. Navigated to malicious domain (osay[.]digital)
+3. Downloaded MSI installer
+4. Installed disguised RMM software
+5. Scheduled task created for persistence
+6. PowerShell executed encoded command
+7. Updater binary maintained remote access capability
+
+---
+
+### Indicators of Compromise (IOCs)
+
+| Type | Value |
+|------|------|
+| Domain | osay[.]digital |
+| Installed App | Google Meet RMM |
+| Install Path | C:\Program Files\googlemeetrmm\ |
+| Task Name | googlemeetrmm Upgrade Scheduler |
+| Executable | updmgr.exe |
+| Log File | upgradeScheduler.log |
+| Publisher | SuperOps Inc. |
+
+---
+
+### MITRE ATT&CK Mapping
+
+| Tactic | Technique | Evidence |
+|--------|----------|---------|
+| Initial Access | Phishing / User Execution | MSI downloaded from malicious domain |
+| Execution | PowerShell | Encoded PowerShell command |
+| Persistence | Scheduled Task | SYSTEM-level scheduled task |
+| Defense Evasion | Obfuscated Command | Base64 encoding |
+| Command & Control | Remote Access Tool | ISL Online Agent |
+
+---
+
+### Remediation Actions
+
+- Removed unauthorized application
+- Deleted scheduled task persistence
+- Verified removal of associated binaries
+- Reviewed system for additional persistence mechanisms
+- Recommended credential resets
+
+---
+
+### Key Takeaway
+
+The most important insight from this investigation was that automated tools alone are insufficient. The primary threat was only discovered through manual inspection of persistence mechanisms and decoding of obfuscated execution.

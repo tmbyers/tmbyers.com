@@ -1,0 +1,188 @@
+---
+title: "Segmented Homelab Network with VLANs, VPN, and Reverse Proxy"
+role: "Network & Security Engineer"
+year: 2026
+duration: "Ongoing"
+teamSize: 1
+outcomeSummary: "Designed and implemented a segmented home network with VLAN isolation, WireGuard VPN access, and secure reverse proxy services using a custom domain and TLS certificates."
+overview: "Built a production-like homelab network to simulate enterprise network segmentation, secure remote access, and internal service hosting using modern networking and security principles."
+problem: "Flat home networks lack segmentation and expose all devices to lateral movement. Additionally, accessing internal services remotely without proper security introduces risk."
+constraints:
+  - "Limited consumer-grade hardware (TP-Link switches and AP)"
+  - "Needed secure remote access without exposing services publicly"
+  - "Required separation between IoT, user devices, and infrastructure"
+  - "Self-hosted environment with dynamic public IP"
+approach: "Implemented VLAN-based segmentation across switches and access points, configured firewall zones and rules on an OpenWRT-based router, deployed WireGuard VPN for secure remote access, and used Nginx Proxy Manager with Let's Encrypt for secure service exposure via a custom domain."
+keyDecisions:
+  - decision: "Segment network using VLANs by device trust level"
+    reasoning: "Separating IoT, user devices, and infrastructure reduces lateral movement risk and improves control over traffic flows."
+  - decision: "Use WireGuard for remote access instead of port forwarding"
+    reasoning: "WireGuard provides secure, encrypted access to internal resources without exposing services directly to the internet."
+  - decision: "Use reverse proxy with domain + TLS instead of raw IP access"
+    reasoning: "Improves usability, security, and allows centralized access control for services."
+  - decision: "Implement default-deny firewall strategy between VLANs"
+    reasoning: "Ensures only explicitly allowed traffic can traverse network segments."
+techStack:
+  - "OpenWRT (FriendlyWRT)"
+  - "WireGuard VPN"
+  - "Nginx Proxy Manager"
+  - "Docker"
+  - "Proxmox"
+  - "TP-Link Managed Switches"
+  - "VLAN (802.1Q)"
+  - "Let's Encrypt"
+impact:
+  metrics:
+    - label: "Network Segments"
+      value: "5 isolated VLANs"
+    - label: "Remote Access Security"
+      value: "VPN-only (no exposed internal services)"
+    - label: "Service Access"
+      value: "Domain-based with HTTPS"
+  qualitative: "The network now mirrors enterprise segmentation practices, allowing safe experimentation, secure remote access, and controlled service exposure without compromising internal devices."
+learnings:
+  - "VLAN tagging and PVID configuration must align across all network devices"
+  - "Firewall zones and forwarding rules are critical for enforcing segmentation"
+  - "DNS and certificate management are essential for usable internal services"
+  - "WireGuard simplifies secure remote access compared to traditional VPNs"
+
+featured: true
+order: 2
+---
+
+import { Image } from 'astro:assets';
+
+import lanDiagram from '@/assets/projects/arceus-lan/arceus_lan_diagram.png';
+import vlanTable from '@/assets/projects/arceus-lan/vlan_table.png';
+import switch1 from '@/assets/projects/arceus-lan/switch_1_config.png';
+import switch1Pvid from '@/assets/projects/arceus-lan/switch_1_pvid.png';
+import switch2 from '@/assets/projects/arceus-lan/switch_2_config.png';
+import switch2Pvid from '@/assets/projects/arceus-lan/switch_2_pvid.png';
+import apVlan from '@/assets/projects/arceus-lan/ap_ssid_tagging.png';
+import apStatic from '@/assets/projects/arceus-lan/ap_static_ip.png';
+import firewallRules from '@/assets/projects/arceus-lan/firewall_rules.png';
+import firewallZones from '@/assets/projects/arceus-lan/firewall_zones.png';
+import wgvpnRules from '@/assets/projects/arceus-lan/wgvpn_rules.png';
+import npm from '@/assets/projects/arceus-lan/npm.png';
+
+## Network Architecture
+
+The homelab network was designed with segmentation and security as primary goals.
+
+<Image src={lanDiagram} alt="Arceus LAN network diagram" />
+
+---
+
+## VLAN Design
+
+The network was segmented into multiple VLANs based on trust level and function:
+
+- **VLAN 99 (Infrastructure):** Router, switches, AP, Proxmox management  
+- **VLAN 10 (Management):** Trusted devices with access to infrastructure  
+- **VLAN 20 (Family):** General user devices  
+- **VLAN 30 (IoT):** Restricted internet-only devices  
+- **VLAN 50 (VMs):** Virtual machines and services  
+
+<Image src={vlanTable} alt="VLAN configuration table" />
+
+---
+
+## Switch Configuration
+
+Managed switches were configured to support VLAN trunking and segmentation.
+
+<Image src={switch1} alt="Switch 1 VLAN configuration" />
+<Image src={switch1Pvid} alt="Switch 1 PVID configuration" />
+
+<Image src={switch2} alt="Switch 2 VLAN configuration" />
+<Image src={switch2Pvid} alt="Switch 2 PVID configuration" />
+
+Key concepts implemented:
+- Tagged trunk ports between switches and router  
+- Untagged access ports for endpoint devices  
+- PVID alignment for proper VLAN assignment  
+
+---
+
+## Wireless VLAN Segmentation
+
+The access point was configured to broadcast multiple SSIDs mapped to VLANs.
+
+<Image src={apVlan} alt="SSID to VLAN mapping on access point" />
+
+The AP was also assigned a static IP within the infrastructure VLAN.
+
+<Image src={apStatic} alt="Access point static IP configuration" />
+
+---
+
+## Firewall Segmentation
+
+Firewall rules enforce strict separation between VLANs.
+
+<Image src={firewallZones} alt="Firewall zone configuration" />
+<Image src={firewallRules} alt="Firewall traffic rules" />
+
+Key controls:
+- Default deny between VLANs  
+- IoT VLAN restricted to internet only  
+- Management VLAN allowed access to infrastructure  
+- Granular allow rules for required services  
+
+---
+
+## Secure Remote Access (WireGuard VPN)
+
+WireGuard was deployed to securely access internal resources remotely.
+
+<Image src={wgvpnRules} alt="WireGuard firewall rules" />
+
+Features:
+- Encrypted tunnel for remote devices  
+- Selective VLAN access per peer  
+- No direct exposure of internal services  
+
+---
+
+## Reverse Proxy & Domain Access
+
+Internal services are accessed via a custom domain using Nginx Proxy Manager.
+
+<Image src={npm} alt="Nginx Proxy Manager configuration" />
+
+Capabilities:
+- Domain-based routing (e.g., proxmox.arceus.dev)  
+- Automatic Let's Encrypt certificates  
+- HTTPS access to internal services  
+- Centralized access management  
+
+---
+
+## Technical Deep Dive
+
+The most critical part of the design was enforcing **true segmentation**, not just VLAN separation.
+
+By combining:
+- VLAN tagging  
+- Firewall zone isolation  
+- Default deny policies  
+
+the network prevents lateral movement between device groups.
+
+Additionally, using WireGuard as the only entry point ensures:
+- No services are publicly exposed  
+- Remote access is authenticated and encrypted  
+
+The reverse proxy layer improves usability while maintaining security by:
+- abstracting internal IPs  
+- enforcing HTTPS  
+- enabling centralized control  
+
+---
+
+## Key Takeaways
+
+- Enterprise-style segmentation can be implemented in a homelab  
+- Proper VLAN design significantly improves network security  
+- VPN-first access is safer than exposing services  
+- Reverse proxies enable secure and user-friendly service access  
